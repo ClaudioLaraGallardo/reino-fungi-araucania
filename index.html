@@ -45,81 +45,153 @@ canvas {
 }
 
 /* ══════════════════════════════
-   MOBILE RESPONSIVE
+   PORTRAIT WARNING
 ══════════════════════════════ */
-@media (max-width: 768px) {
+#portrait-warning {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  z-index: 600;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px;
+  text-align: center;
+}
+
+.portrait-icon {
+  font-size: 52px;
+  animation: rotateHint 2s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  40%       { transform: rotate(90deg); }
+  60%       { transform: rotate(90deg); }
+}
+
+.portrait-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--spore);
+}
+
+.portrait-msg {
+  font-size: 13px;
+  color: var(--cream);
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+}
+
+.portrait-sub {
+  font-size: 10px;
+  color: var(--fog);
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+}
+
+#portrait-continue {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid rgba(200,168,75,0.3);
+  color: rgba(200,168,75,0.6);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  padding: 8px 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Inconsolata', monospace;
+  transition: all 0.2s;
+}
+
+#portrait-continue:hover {
+  border-color: rgba(200,168,75,0.6);
+  color: var(--spore);
+}
+
+/* ══════════════════════════════
+   MOBILE RESPONSIVE (landscape)
+══════════════════════════════ */
+@media (max-width: 900px) {
 
   /* Header */
-  header { padding: 10px 12px !important; }
-  .logo-main { font-size: 14px !important; }
+  header { padding: 8px 12px !important; }
+  .logo-main { font-size: 13px !important; }
   .logo-sub { display: none !important; }
   .header-stats { gap: 10px !important; }
   .stat-num { font-size: 13px !important; }
   .stat-label { font-size: 7px !important; }
-  #sound-btn { width: 24px !important; height: 24px !important; font-size: 12px !important; }
+  #sound-btn { width: 24px !important; height: 24px !important; font-size: 11px !important; }
 
-  /* Legend — hidden by default, toggle button instead */
+  /* Legend — compact */
   #legend {
-    display: none !important;
+    bottom: 52px !important;
+    left: 8px !important;
+    padding: 7px 10px !important;
+    max-width: 145px !important;
   }
+  .legend-title { font-size: 7px !important; margin-bottom: 5px !important; }
+  .legend-item { font-size: 9px !important; margin-bottom: 3px !important; gap: 5px !important; }
+  .legend-dot { width: 6px !important; height: 6px !important; flex-shrink: 0 !important; }
 
   /* Season bar */
   #season-bar {
     bottom: 6px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    padding: 5px 8px !important;
+    padding: 5px 7px !important;
     gap: 2px !important;
-    max-width: 98vw !important;
+    max-width: 96vw !important;
     overflow-x: auto !important;
     flex-wrap: nowrap !important;
   }
   .season-label { display: none !important; }
-  .month-btn { width: 20px !important; height: 20px !important; font-size: 7px !important; border-radius: 2px !important; }
+  .month-btn { width: 20px !important; height: 20px !important; font-size: 7px !important; flex-shrink: 0 !important; }
   .month-btn.all-btn { width: auto !important; padding: 0 6px !important; }
   #season-count { font-size: 8px !important; white-space: nowrap !important; }
 
-  /* Caption — top instead of bottom right */
-  #caption {
-    bottom: auto !important;
-    top: 60px !important;
-    right: 8px !important;
-    max-width: 180px !important;
-    padding: 8px 24px 8px 10px !important;
-  }
-  .caption-title { font-size: 8px !important; }
-  .caption-text { font-size: 9px !important; line-height: 1.5 !important; }
+  /* Caption */
+  #caption { display: none !important; }
 
-  /* Compass — hide on mobile */
+  /* Compass */
   #compass { display: none !important; }
 
-  /* Controls hint — smaller */
-  #controls-hint {
-    display: none !important;
-  }
+  /* Controls hint */
+  #controls-hint { display: none !important; }
 
-  /* Species panel — slides up from bottom */
+  /* Species panel — slides from right, narrower */
   #species-panel {
-    width: 100vw !important;
-    height: 82vh !important;
-    top: auto !important;
-    bottom: 0 !important;
-    right: 0 !important;
-    border-left: none !important;
-    border-top: 1px solid rgba(200,168,75,0.2) !important;
-    border-radius: 16px 16px 0 0 !important;
-    transform: translateY(100%) !important;
+    width: min(380px, 92vw) !important;
   }
-  #species-panel.open { transform: translateY(0) !important; }
-
-  .panel-hero { height: 200px !important; }
-  .panel-sciname { font-size: 17px !important; }
-  .panel-taxon { font-size: 8px !important; }
+  .panel-hero { height: 180px !important; }
+  .panel-sciname { font-size: 16px !important; }
+  .panel-body { padding: 12px !important; }
   .section-text { font-size: 12px !important; }
-  .section-label { font-size: 8px !important; }
+}
 
-  /* Tooltip */
-  #tooltip { font-size: 11px !important; }
+/* Portrait phones specifically */
+@media (max-width: 500px) and (orientation: portrait) {
+  #portrait-warning { display: flex !important; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Landscape phone — ultra compact */
+  header { padding: 5px 10px !important; }
+  .logo-main { font-size: 12px !important; }
+  .stat-num { font-size: 11px !important; }
+  #legend { display: none !important; }
+  #season-bar { bottom: 3px !important; padding: 3px 6px !important; }
+  .month-btn { width: 18px !important; height: 18px !important; font-size: 6px !important; }
+
+  /* Panel slides from right, takes 55% width */
+  #species-panel {
+    width: 55vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+  }
+  .panel-hero { height: 140px !important; }
 }
 
 
@@ -863,6 +935,15 @@ header {
     <div class="load-bar-fill" id="load-bar"></div>
   </div>
   <div style="margin-top:16px;font-size:9px;color:rgba(200,212,184,0.3);letter-spacing:0.2em" id="load-detail"></div>
+</div>
+
+<!-- Portrait mode warning -->
+<div id="portrait-warning">
+  <div class="portrait-icon">⟳</div>
+  <div class="portrait-title">Reino Fungi <em>Araucanía</em></div>
+  <div class="portrait-msg">Gira tu pantalla para una mejor experiencia</div>
+  <div class="portrait-sub">Este atlas 3D está optimizado para modo horizontal</div>
+  <button id="portrait-continue">Continuar de todas formas →</button>
 </div>
 
 <div id="canvas-container"></div>
@@ -1685,7 +1766,7 @@ addCraterSmoke(0.72, 0.75, 18); // Villarrica
 addCraterSmoke(0.70, 0.38, 20); // Llaima
 
 // Place trees
-// placeTrees() — removed for cleaner visual
+// placeTrees() — removed
 
 // ── Helper: lat/lon to terrain coords ──
 function latLonTo3D(lat, lon) {
@@ -1777,67 +1858,31 @@ function createMushroom(color, scale = 1) {
   return group;
 }
 
-// ── Tree models — pure dark silhouettes ──
-function createAraucaria(scale = 1) {
+// ── Grass tuft — replaces trees as ground texture ──
+function createGrassTuft(scale = 1) {
   const group = new THREE.Group();
-  const trunkH = 2.2 * scale;
-  const trunkGeo = new THREE.CylinderGeometry(0.06*scale, 0.12*scale, trunkH, 6);
-  const silMat = new THREE.MeshBasicMaterial({ color: 0x0a0e08 });
-  const trunk = new THREE.Mesh(trunkGeo, silMat);
-  trunk.position.y = trunkH / 2; group.add(trunk);
-  for (let i = 0; i < 5; i++) {
-    const t = i / 4;
-    const r = (0.65 - t * 0.32) * scale;
-    const tier = new THREE.Mesh(
-      new THREE.ConeGeometry(r, 0.4*scale, 7),
-      new THREE.MeshBasicMaterial({ color: 0x0d1209 })
-    );
-    tier.position.y = trunkH * (0.45 + t * 0.55);
-    group.add(tier);
+  const blades = 3 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < blades; i++) {
+    const h = (0.018 + Math.random() * 0.012) * scale;
+    const geo = new THREE.CylinderGeometry(0.015*scale, 0.04*scale, h, 3);
+    const green = 0.18 + Math.random() * 0.06;
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(0.02, green, 0.03),
+    });
+    const blade = new THREE.Mesh(geo, mat);
+    const angle = (i / blades) * Math.PI * 2;
+    const r = Math.random() * 0.15 * scale;
+    blade.position.set(Math.cos(angle)*r, h/2, Math.sin(angle)*r);
+    blade.rotation.z = (Math.random()-0.5) * 0.3;
+    blade.rotation.x = (Math.random()-0.5) * 0.2;
+    group.add(blade);
   }
   return group;
 }
 
-function createCoigue(scale = 1) {
-  const group = new THREE.Group();
-  const trunkH = 1.6 * scale;
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.07*scale, 0.15*scale, trunkH, 6),
-    new THREE.MeshBasicMaterial({ color: 0x080c06 })
-  );
-  trunk.position.y = trunkH / 2; group.add(trunk);
-  for (let i = 0; i < 3; i++) {
-    const t = i / 3;
-    const r = (0.5 + Math.sin(t*Math.PI)*0.2) * scale;
-    const can = new THREE.Mesh(
-      new THREE.SphereGeometry(r, 7, 5, 0, Math.PI*2, 0, Math.PI*0.7),
-      new THREE.MeshBasicMaterial({ color: 0x0c1409 })
-    );
-    can.position.y = trunkH + r * 0.6 + i * 0.28 * scale;
-    group.add(can);
-  }
-  return group;
-}
-
-function createLenga(scale = 1) {
-  const group = new THREE.Group();
-  const trunkH = 1.2 * scale;
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.05*scale, 0.10*scale, trunkH, 5),
-    new THREE.MeshBasicMaterial({ color: 0x080c06 })
-  );
-  trunk.position.y = trunkH / 2; group.add(trunk);
-  for (let i = 0; i < 3; i++) {
-    const r = (0.25 + Math.random()*0.15) * scale;
-    const can = new THREE.Mesh(
-      new THREE.SphereGeometry(r, 6, 5, 0, Math.PI*2, 0, Math.PI*0.75),
-      new THREE.MeshBasicMaterial({ color: 0x0e1209 })
-    );
-    can.position.set((Math.random()-0.5)*0.3*scale, trunkH + r*0.5 + i*0.2*scale, (Math.random()-0.5)*0.3*scale);
-    group.add(can);
-  }
-  return group;
-}
+function createAraucaria(scale = 1) { return createGrassTuft(scale); }
+function createCoigue(scale = 1)    { return createGrassTuft(scale); }
+function createLenga(scale = 1)     { return createGrassTuft(scale); }
 
 // ── Place trees on terrain — altitude-zoned ──
 function placeTrees() {
@@ -1859,7 +1904,7 @@ function placeTrees() {
     const nearLlaima     = Math.sqrt((nx-0.70)**2 + (nz-0.38)**2) < 0.06;
     if (nearVillarrica || nearLlaima) continue;
 
-    const scale = 0.25 + Math.random() * 0.45; // much smaller trees
+    const scale = 0.18 + Math.random() * 0.12; // ultra short grass
     let tree;
 
     if (wy > 17) {
@@ -1914,7 +1959,7 @@ function placeMushrooms(SPECIES) {
   SPECIES.forEach(sp => {
     sp.coords.forEach(([lat, lon]) => {
       const pos = latLonTo3D(lat, lon);
-      const scale = 3.2 + Math.random() * 1.8; // muy grandes y visibles
+      const scale = 2.4 + Math.random() * 1.4; // bigger, more visible
       const mush = createMushroom(sp.color, scale);
 
       // Start underground for emerge animation
@@ -2955,6 +3000,31 @@ document.getElementById('sound-btn').addEventListener('click', function() {
     btn.style.borderColor = 'rgba(200,168,75,0.2)';
   }
 });
+
+// Portrait warning
+(function() {
+  const warning = document.getElementById('portrait-warning');
+  const continueBtn = document.getElementById('portrait-continue');
+  let dismissed = false;
+
+  function checkOrientation() {
+    if (dismissed) return;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+    if (warning) warning.style.display = (isPortrait && isMobile) ? 'flex' : 'none';
+  }
+
+  if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      dismissed = true;
+      if (warning) warning.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 300));
+  setTimeout(checkOrientation, 500);
+})();
 
 // Caption close
 document.getElementById('caption-close').addEventListener('click', () => {
