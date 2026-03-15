@@ -48,75 +48,78 @@ canvas {
    MOBILE RESPONSIVE
 ══════════════════════════════ */
 @media (max-width: 768px) {
-  /* Header — compact */
-  header {
-    padding: 10px 14px !important;
-  }
-  .logo-main { font-size: 15px !important; }
-  .logo-sub  { font-size: 8px !important; letter-spacing: 0.15em !important; display: none; }
-  .header-stats { gap: 12px !important; }
-  .stat-num  { font-size: 14px !important; }
-  .stat-label{ font-size: 7px !important; }
-  #sound-btn { width: 26px !important; height: 26px !important; font-size: 13px !important; }
 
-  /* Legend — smaller, collapsible */
+  /* Header */
+  header { padding: 10px 12px !important; }
+  .logo-main { font-size: 14px !important; }
+  .logo-sub { display: none !important; }
+  .header-stats { gap: 10px !important; }
+  .stat-num { font-size: 13px !important; }
+  .stat-label { font-size: 7px !important; }
+  #sound-btn { width: 24px !important; height: 24px !important; font-size: 12px !important; }
+
+  /* Legend — hidden by default, toggle button instead */
   #legend {
-    bottom: 70px !important;
-    left: 8px !important;
-    padding: 8px 12px !important;
-    max-width: 160px !important;
-    font-size: 10px !important;
+    display: none !important;
   }
-  .legend-title { font-size: 7px !important; margin-bottom: 6px !important; }
-  .legend-item  { font-size: 10px !important; margin-bottom: 4px !important; gap: 6px !important; }
-  .legend-dot   { width: 7px !important; height: 7px !important; }
 
-  /* Season bar — scrollable on mobile */
+  /* Season bar */
   #season-bar {
-    padding: 6px 8px !important;
-    gap: 3px !important;
-    max-width: 95vw !important;
+    bottom: 6px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 5px 8px !important;
+    gap: 2px !important;
+    max-width: 98vw !important;
     overflow-x: auto !important;
-    bottom: 8px !important;
+    flex-wrap: nowrap !important;
   }
-  .season-label { font-size: 7px !important; display: none; }
-  .month-btn    { width: 22px !important; height: 22px !important; font-size: 7px !important; }
-  .month-btn.all-btn { padding: 0 5px !important; font-size: 7px !important; }
-  #season-count { font-size: 8px !important; }
+  .season-label { display: none !important; }
+  .month-btn { width: 20px !important; height: 20px !important; font-size: 7px !important; border-radius: 2px !important; }
+  .month-btn.all-btn { width: auto !important; padding: 0 6px !important; }
+  #season-count { font-size: 8px !important; white-space: nowrap !important; }
 
-  /* Caption */
+  /* Caption — top instead of bottom right */
   #caption {
-    bottom: 70px !important;
+    bottom: auto !important;
+    top: 60px !important;
     right: 8px !important;
-    max-width: 200px !important;
-    padding: 10px 28px 10px 12px !important;
+    max-width: 180px !important;
+    padding: 8px 24px 8px 10px !important;
   }
-  .caption-text { font-size: 10px !important; }
+  .caption-title { font-size: 8px !important; }
+  .caption-text { font-size: 9px !important; line-height: 1.5 !important; }
 
-  /* Compass */
-  #compass { bottom: 120px !important; right: 8px !important; }
+  /* Compass — hide on mobile */
+  #compass { display: none !important; }
 
-  /* Controls hint */
+  /* Controls hint — smaller */
   #controls-hint {
-    bottom: 70px !important;
-    right: 8px !important;
-    font-size: 8px !important;
-    line-height: 1.6 !important;
+    display: none !important;
   }
 
-  /* Species panel — full width on mobile */
+  /* Species panel — slides up from bottom */
   #species-panel {
     width: 100vw !important;
-    border-left: none !important;
-    border-top: 1px solid rgba(200,168,75,0.15) !important;
-    height: 85vh !important;
+    height: 82vh !important;
     top: auto !important;
     bottom: 0 !important;
+    right: 0 !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(200,168,75,0.2) !important;
+    border-radius: 16px 16px 0 0 !important;
     transform: translateY(100%) !important;
   }
   #species-panel.open { transform: translateY(0) !important; }
-  .panel-hero { height: 220px !important; }
-  .panel-sciname { font-size: 18px !important; }
+
+  .panel-hero { height: 200px !important; }
+  .panel-sciname { font-size: 17px !important; }
+  .panel-taxon { font-size: 8px !important; }
+  .section-text { font-size: 12px !important; }
+  .section-label { font-size: 8px !important; }
+
+  /* Tooltip */
+  #tooltip { font-size: 11px !important; }
 }
 
 
@@ -1753,11 +1756,9 @@ function createMushroom(color, scale = 1) {
   }
   capPos.needsUpdate = true;
   capGeo.computeVertexNormals();
-  const capMat = new THREE.MeshPhongMaterial({
-    color,
-    shininess: 25,
-    specular: new THREE.Color(color).multiplyScalar(0.3),
-  });
+  // Cap — MeshBasicMaterial so color is pure, not washed by lighting
+  const capColor = new THREE.Color(color);
+  const capMat = new THREE.MeshBasicMaterial({ color: capColor });
   const cap = new THREE.Mesh(capGeo, capMat);
   cap.position.y = 0.80 * scale;
   cap.castShadow = true;
@@ -1776,31 +1777,22 @@ function createMushroom(color, scale = 1) {
   return group;
 }
 
-// ── Tree models ──
+// ── Tree models — pure dark silhouettes ──
 function createAraucaria(scale = 1) {
   const group = new THREE.Group();
-  // Trunk
   const trunkH = 2.2 * scale;
   const trunkGeo = new THREE.CylinderGeometry(0.06*scale, 0.12*scale, trunkH, 6);
-  const trunkMat = new THREE.MeshPhongMaterial({ color: 0x4a3520, shininess: 3 });
-  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-  trunk.position.y = trunkH / 2;
-  trunk.castShadow = true;
-  group.add(trunk);
-  // Umbrella tiers (araucaria shape)
-  const tiers = 5;
-  for (let i = 0; i < tiers; i++) {
-    const t = i / (tiers - 1);
-    const y = trunkH * (0.45 + t * 0.55);
-    const r = (0.7 - t * 0.35) * scale;
-    const tierGeo = new THREE.ConeGeometry(r, 0.4*scale, 7);
-    const tierMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(0.15 + t*0.05, 0.30 + t*0.04, 0.10 + t*0.02),
-      shininess: 6,
-    });
-    const tier = new THREE.Mesh(tierGeo, tierMat);
-    tier.position.y = y;
-    tier.castShadow = true;
+  const silMat = new THREE.MeshBasicMaterial({ color: 0x0a0e08 });
+  const trunk = new THREE.Mesh(trunkGeo, silMat);
+  trunk.position.y = trunkH / 2; group.add(trunk);
+  for (let i = 0; i < 5; i++) {
+    const t = i / 4;
+    const r = (0.65 - t * 0.32) * scale;
+    const tier = new THREE.Mesh(
+      new THREE.ConeGeometry(r, 0.4*scale, 7),
+      new THREE.MeshBasicMaterial({ color: 0x0d1209 })
+    );
+    tier.position.y = trunkH * (0.45 + t * 0.55);
     group.add(tier);
   }
   return group;
@@ -1809,49 +1801,40 @@ function createAraucaria(scale = 1) {
 function createCoigue(scale = 1) {
   const group = new THREE.Group();
   const trunkH = 1.6 * scale;
-  const trunkGeo = new THREE.CylinderGeometry(0.07*scale, 0.15*scale, trunkH, 6);
-  const trunkMat = new THREE.MeshPhongMaterial({ color: 0x3d2a15, shininess: 2 });
-  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-  trunk.position.y = trunkH / 2;
-  trunk.castShadow = true;
-  group.add(trunk);
-  // Rounded canopy
-  const layers = 3;
-  for (let i = 0; i < layers; i++) {
-    const t = i / layers;
-    const r = (0.55 + Math.sin(t*Math.PI)*0.25) * scale;
-    const canGeo = new THREE.SphereGeometry(r, 8, 6, 0, Math.PI*2, 0, Math.PI*0.7);
-    const canMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(0.12 + t*0.04, 0.28 + t*0.06, 0.08 + t*0.02),
-      shininess: 8,
-    });
-    const can = new THREE.Mesh(canGeo, canMat);
-    can.position.y = trunkH + r * 0.6 + i * 0.3 * scale;
-    can.castShadow = true;
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07*scale, 0.15*scale, trunkH, 6),
+    new THREE.MeshBasicMaterial({ color: 0x080c06 })
+  );
+  trunk.position.y = trunkH / 2; group.add(trunk);
+  for (let i = 0; i < 3; i++) {
+    const t = i / 3;
+    const r = (0.5 + Math.sin(t*Math.PI)*0.2) * scale;
+    const can = new THREE.Mesh(
+      new THREE.SphereGeometry(r, 7, 5, 0, Math.PI*2, 0, Math.PI*0.7),
+      new THREE.MeshBasicMaterial({ color: 0x0c1409 })
+    );
+    can.position.y = trunkH + r * 0.6 + i * 0.28 * scale;
     group.add(can);
   }
   return group;
 }
 
-// ── Lenga / Ñirre (high altitude deciduous Nothofagus) ──
 function createLenga(scale = 1) {
   const group = new THREE.Group();
   const trunkH = 1.2 * scale;
-  const trunkGeo = new THREE.CylinderGeometry(0.05*scale, 0.10*scale, trunkH, 5);
-  const trunkMat = new THREE.MeshPhongMaterial({ color: 0x3a2510, shininess: 2 });
-  const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-  trunk.position.y = trunkH / 2; trunk.castShadow = true; group.add(trunk);
-  // Irregular sparse canopy — lenga is windswept
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.05*scale, 0.10*scale, trunkH, 5),
+    new THREE.MeshBasicMaterial({ color: 0x080c06 })
+  );
+  trunk.position.y = trunkH / 2; group.add(trunk);
   for (let i = 0; i < 3; i++) {
-    const r = (0.28 + Math.random()*0.18) * scale;
-    const canGeo = new THREE.SphereGeometry(r, 6, 5, 0, Math.PI*2, 0, Math.PI*0.75);
-    const canMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(0.18 + Math.random()*0.06, 0.28 + Math.random()*0.08, 0.09),
-      shininess: 5,
-    });
-    const can = new THREE.Mesh(canGeo, canMat);
+    const r = (0.25 + Math.random()*0.15) * scale;
+    const can = new THREE.Mesh(
+      new THREE.SphereGeometry(r, 6, 5, 0, Math.PI*2, 0, Math.PI*0.75),
+      new THREE.MeshBasicMaterial({ color: 0x0e1209 })
+    );
     can.position.set((Math.random()-0.5)*0.3*scale, trunkH + r*0.5 + i*0.2*scale, (Math.random()-0.5)*0.3*scale);
-    can.castShadow = true; group.add(can);
+    group.add(can);
   }
   return group;
 }
@@ -1876,7 +1859,7 @@ function placeTrees() {
     const nearLlaima     = Math.sqrt((nx-0.70)**2 + (nz-0.38)**2) < 0.06;
     if (nearVillarrica || nearLlaima) continue;
 
-    const scale = 0.5 + Math.random() * 1.1;
+    const scale = 0.25 + Math.random() * 0.45; // much smaller trees
     let tree;
 
     if (wy > 17) {
@@ -1931,7 +1914,7 @@ function placeMushrooms(SPECIES) {
   SPECIES.forEach(sp => {
     sp.coords.forEach(([lat, lon]) => {
       const pos = latLonTo3D(lat, lon);
-      const scale = 1.8 + Math.random() * 1.2;
+      const scale = 3.2 + Math.random() * 1.8; // muy grandes y visibles
       const mush = createMushroom(sp.color, scale);
 
       // Start underground for emerge animation
