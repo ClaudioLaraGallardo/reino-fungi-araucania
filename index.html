@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reino Fungi Araucanía — Mapa Micológico 3D</title>
+<title>Mapa Micológico Araucanía — Mapa Micológico 3D</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inconsolata:wght@300;400;600&display=swap');
 
@@ -929,7 +929,7 @@ header {
 
 <div id="loading">
   <div class="load-spores" id="load-spores"></div>
-  <div class="load-title">Reino Fungi <em>Araucanía</em></div>
+  <div class="load-title">Mapa Micológico <em>Araucanía</em></div>
   <div class="load-sub">Atlas Micológico Interactivo</div>
   <div class="load-bar-track">
     <div class="load-bar-fill" id="load-bar"></div>
@@ -940,7 +940,7 @@ header {
 <!-- Portrait mode warning -->
 <div id="portrait-warning">
   <div class="portrait-icon">⟳</div>
-  <div class="portrait-title">Reino Fungi <em>Araucanía</em></div>
+  <div class="portrait-title">Mapa Micológico <em>Araucanía</em></div>
   <div class="portrait-msg">Gira tu pantalla para una mejor experiencia</div>
   <div class="portrait-sub">Este atlas 3D está optimizado para modo horizontal</div>
   <button id="portrait-continue">Continuar de todas formas →</button>
@@ -950,7 +950,7 @@ header {
 
 <header>
   <div class="logo">
-    <div class="logo-main">Reino Fungi <span>Araucanía</span></div>
+    <div class="logo-main">Mapa Micológico <span>Araucanía</span></div>
     <div class="logo-sub">Atlas Micológico Interactivo · Región IX</div>
   </div>
   <div class="header-stats">
@@ -1191,7 +1191,7 @@ function setLoadStatus(msg, pct, detail = '') {
 // Fetch all occurrences for Fungi in La Araucanía with coordinates
 // Uses pagination to get up to 300 records
 async function fetchGBIFOccurrences() {
-  setLoadStatus('Consultando GBIF…', 10, 'Reino Fungi · La Araucanía · Chile');
+  setLoadStatus('Consultando GBIF…', 10, 'Mapa Micológico · La Araucanía · Chile');
 
   const params = new URLSearchParams({
     kingdomKey: 5,          // Fungi kingdom key in GBIF backbone
@@ -1766,6 +1766,18 @@ addCraterSmoke(0.72, 0.75, 18); // Villarrica
 addCraterSmoke(0.70, 0.38, 20); // Llaima
 
 // Place trees
+// ── Green carpet — flat ground base ──
+const carpetGeo = new THREE.PlaneGeometry(TERRAIN_W * 1.05, TERRAIN_D * 1.05, 1, 1);
+carpetGeo.rotateX(-Math.PI / 2);
+const carpetMat = new THREE.MeshBasicMaterial({
+  color: 0x1a2e12,
+  transparent: true,
+  opacity: 0.45,
+});
+const carpet = new THREE.Mesh(carpetGeo, carpetMat);
+carpet.position.y = 0.3;
+scene.add(carpet);
+
 // placeTrees() — removed
 
 // ── Helper: lat/lon to terrain coords ──
