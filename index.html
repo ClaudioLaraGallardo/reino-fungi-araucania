@@ -3082,16 +3082,77 @@ setTimeout(function() {
                   g.gain.linearRampToValueAtTime(0, t+0.18);
                 }
                 o.start(now); o.stop(now+2.0);
+
+              } else if (type === 'pitigue') {
+                // Pitiué — flute-like ascending trill, very warm
+                filt.frequency.value = 1200; filt.Q.value = 6;
+                o.type = 'sine';
+                const now = ctx.currentTime;
+                // Ascending cascade of notes
+                const notes = [660, 740, 820, 900, 980, 900, 820];
+                notes.forEach((freq, i) => {
+                  const t = now + i * 0.11;
+                  o.frequency.setValueAtTime(freq, t);
+                  g.gain.setValueAtTime(0, t);
+                  g.gain.linearRampToValueAtTime(0.16, t + 0.04);
+                  g.gain.linearRampToValueAtTime(0.08, t + 0.09);
+                });
+                g.gain.linearRampToValueAtTime(0, now + notes.length * 0.11 + 0.1);
+                o.start(now); o.stop(now + notes.length * 0.11 + 0.2);
+
+              } else if (type === 'zorzal') {
+                // Zorzal (thrush) — rich melodic phrases, most musical
+                filt.frequency.value = 1500; filt.Q.value = 4;
+                o.type = 'sine';
+                const now = ctx.currentTime;
+                // Three melodic phrases with vibrato feel
+                const phrase = [
+                  [1046, 0.0], [1174, 0.12], [1318, 0.22], [1174, 0.34], [1046, 0.44],
+                  [1318, 0.65], [1480, 0.77], [1318, 0.89], [1174, 1.02],
+                  [880,  1.25], [988,  1.35], [1046, 1.45], [880, 1.58],
+                ];
+                phrase.forEach(([freq, t]) => {
+                  o.frequency.setValueAtTime(freq, now + t);
+                  g.gain.setValueAtTime(0, now + t);
+                  g.gain.linearRampToValueAtTime(0.13, now + t + 0.04);
+                  g.gain.linearRampToValueAtTime(0.06, now + t + 0.10);
+                });
+                g.gain.linearRampToValueAtTime(0, now + 1.75);
+                o.start(now); o.stop(now + 1.85);
+
+              } else if (type === 'torcaza') {
+                // Torcaza (dove) — deep warm "cuu-cuu-cuu", very soothing
+                filt.frequency.value = 380; filt.Q.value = 10;
+                o.type = 'sine';
+                const now = ctx.currentTime;
+                for (let i = 0; i < 4; i++) {
+                  const t = now + i * 0.55;
+                  o.frequency.setValueAtTime(310, t);
+                  o.frequency.linearRampToValueAtTime(290, t + 0.18);
+                  o.frequency.linearRampToValueAtTime(305, t + 0.35);
+                  g.gain.setValueAtTime(0, t);
+                  g.gain.linearRampToValueAtTime(0.18, t + 0.06);
+                  g.gain.linearRampToValueAtTime(0.12, t + 0.28);
+                  g.gain.linearRampToValueAtTime(0, t + 0.48);
+                }
+                o.start(now); o.stop(now + 2.5);
               }
             }, delay);
           }
 
-          // Schedule bird calls randomly over time
+          // Schedule bird calls randomly over time — weighted toward warm species
           function scheduleBirds() {
             if (!btn._ctx) return;
-            const birds = ['chucao','chucao','bandurria','carpintero','chuncho'];
+            const birds = [
+              'zorzal','zorzal','zorzal',       // most musical, appears often
+              'torcaza','torcaza',               // warm and soothing
+              'pitigue','pitigue',               // flute-like, pleasant
+              'chucao','chucao',                 // characteristic of Araucanía
+              'chuncho',                         // soft night owl
+              'carpintero','bandurria'           // less frequent
+            ];
             const bird = birds[Math.floor(Math.random() * birds.length)];
-            const nextDelay = 3000 + Math.random() * 8000;
+            const nextDelay = 2500 + Math.random() * 7000;
             birdCall(bird, 0);
             btn._birdTimer = setTimeout(scheduleBirds, nextDelay);
           }
