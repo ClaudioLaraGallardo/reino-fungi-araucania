@@ -208,6 +208,13 @@ header {
   pointer-events: none;
 }
 
+#sound-btn { 
+  pointer-events: auto !important; 
+  cursor: pointer !important;
+  position: relative;
+  z-index: 200;
+}
+
 .logo {
   display: flex;
   flex-direction: column;
@@ -976,6 +983,9 @@ header {
       font-size: 16px;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s;
+      pointer-events: all;
+      position: relative;
+      z-index: 200;
     ">🔇</button>
   </div>
 </header>
@@ -2958,60 +2968,156 @@ animate();
 // ═══════════════════════════════════════════════
 //  AMBIENT SOUND
 // ═══════════════════════════════════════════════
-let soundOn = false;
+// ── Sound button ──
+setTimeout(function() {
+  const btn = document.getElementById('sound-btn');
+  if (!btn) { console.warn('Sound btn not found'); return; }
+  let soundOn = false;
 
-document.getElementById('sound-btn').addEventListener('click', function() {
-  const btn = this;
-  soundOn = !soundOn;
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    soundOn = !soundOn;
+    console.log('Sound clicked, soundOn:', soundOn);
 
-  if (soundOn) {
-    // Build fresh context every time to avoid suspended state issues
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    btn._ctx = ctx;
+    if (soundOn) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        btn._ctx = ctx;
 
-    const frames = ctx.sampleRate * 4;
-    const buf = ctx.createBuffer(2, frames, ctx.sampleRate);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = buf.getChannelData(ch);
-      for (let i = 0; i < frames; i++) d[i] = Math.random() * 2 - 1;
+        // Must resume after user gesture
+        ctx.resume().then(() => {
+          const frames = ctx.sampleRate * 4;
+          const buf = ctx.createBuffer(2, frames, ctx.sampleRate);
+          for (let ch = 0; ch < 2; ch++) {
+            const d = buf.getChannelData(ch);
+            for (let i = 0; i < frames; i++) d[i] = Math.random() * 2 - 1;
+          }
+
+          const wind = ctx.createBufferSource();
+          wind.buffer = buf; wind.loop = true;
+          const lp = ctx.createBiquadFilter();
+          lp.type = 'lowpass'; lp.frequency.value = 280; lp.Q.value = 0.6;
+          const wg = ctx.createGain(); wg.gain.value = 0.004;
+          wind.connect(lp); lp.connect(wg); wg.connect(ctx.destination);
+          wind.start();
+
+          const forest = ctx.createBufferSource();
+          forest.buffer = buf; forest.loop = true; forest.loopStart = 1.2;
+          const bp = ctx.createBiquadFilter();
+          bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 0.5;
+          const fg = ctx.createGain(); fg.gain.value = 0.003;
+          forest.connect(bp); bp.connect(fg); fg.connect(ctx.destination);
+          forest.start();
+
+          const lfo = ctx.createOscillator();
+          lfo.frequency.value = 0.04;
+          const lg = ctx.createGain(); lg.gain.value = 0.08;
+          lfo.connect(lg); lg.connect(wg.gain);
+          lfo.start();
+
+        // ── Bird calls — Chucao, Bandurria, Carpintero, Chuncho ──
+          function birdCall(type, delay) {
+            setTimeout(() => {
+              if (!btn._ctx) return;
+              const o = ctx.createOscillator();
+              const g = ctx.createGain();
+              const filt = ctx.createBiquadFilter();
+              filt.type = 'bandpass'; filt.Q.value = 8;
+              o.connect(filt); filt.connect(g); g.connect(ctx.destination);
+              g.gain.setValueAtTime(0, ctx.currentTime);
+
+              if (type === 'chucao') {
+                // Chucao — descending whistle "tuc-tuc-tuc-wheee"
+                filt.frequency.value = 1800;
+                o.type = 'sine';
+                const now = ctx.currentTime;
+                o.frequency.setValueAtTime(1400, now);
+                o.frequency.linearRampToValueAtTime(1600, now+0.08);
+                o.frequency.linearRampToValueAtTime(1300, now+0.18);
+                o.frequency.linearRampToValueAtTime(1500, now+0.26);
+                o.frequency.linearRampToValueAtTime(800,  now+0.5);
+                o.frequency.linearRampToValueAtTime(600,  now+0.9);
+                g.gain.linearRampToValueAtTime(0.18, now+0.05);
+                g.gain.setValueAtTime(0.18, now+0.4);
+                g.gain.linearRampToValueAtTime(0, now+1.0);
+                o.start(now); o.stop(now+1.1);
+
+              } else if (type === 'bandurria') {
+                // Bandurria — harsh nasal "rra-rra-rra"
+                filt.frequency.value = 900; filt.Q.value = 3;
+                o.type = 'sawtooth';
+                const now = ctx.currentTime;
+                for (let i = 0; i < 4; i++) {
+                  const t = now + i * 0.22;
+                  o.frequency.setValueAtTime(320 + Math.random()*40, t);
+                  g.gain.setValueAtTime(0, t);
+                  g.gain.linearRampToValueAtTime(0.12, t+0.04);
+                  g.gain.linearRampToValueAtTime(0, t+0.16);
+                }
+                o.start(now); o.stop(now+1.1);
+
+              } else if (type === 'carpintero') {
+                // Carpintero negro — rapid drumming
+                filt.frequency.value = 600; filt.Q.value = 2;
+                o.type = 'square';
+                const now = ctx.currentTime;
+                o.frequency.setValueAtTime(180, now);
+                for (let i = 0; i < 8; i++) {
+                  const t = now + i * 0.055;
+                  g.gain.setValueAtTime(i%2===0 ? 0.15 : 0, t);
+                }
+                g.gain.setValueAtTime(0, now+0.5);
+                o.start(now); o.stop(now+0.55);
+
+              } else if (type === 'chuncho') {
+                // Chuncho (Glaucidium) — soft repetitive "po-po-po"
+                filt.frequency.value = 500; filt.Q.value = 12;
+                o.type = 'sine';
+                const now = ctx.currentTime;
+                for (let i = 0; i < 5; i++) {
+                  const t = now + i * 0.35;
+                  o.frequency.setValueAtTime(420, t);
+                  g.gain.setValueAtTime(0, t);
+                  g.gain.linearRampToValueAtTime(0.14, t+0.04);
+                  g.gain.linearRampToValueAtTime(0, t+0.18);
+                }
+                o.start(now); o.stop(now+2.0);
+              }
+            }, delay);
+          }
+
+          // Schedule bird calls randomly over time
+          function scheduleBirds() {
+            if (!btn._ctx) return;
+            const birds = ['chucao','chucao','bandurria','carpintero','chuncho'];
+            const bird = birds[Math.floor(Math.random() * birds.length)];
+            const nextDelay = 3000 + Math.random() * 8000;
+            birdCall(bird, 0);
+            btn._birdTimer = setTimeout(scheduleBirds, nextDelay);
+          }
+          setTimeout(scheduleBirds, 1500);
+          btn.textContent = '🔊';
+          btn.style.color = 'rgba(200,168,75,0.9)';
+          btn.style.borderColor = 'rgba(200,168,75,0.5)';
+          console.log('Audio started, ctx state:', ctx.state);
+        }).catch(e => {
+          console.warn('Audio resume error:', e);
+          soundOn = false;
+        });
+      } catch(e) {
+        console.warn('Audio error:', e);
+        soundOn = false;
+      }
+    } else {
+      if (btn._birdTimer) { clearTimeout(btn._birdTimer); btn._birdTimer = null; }
+      if (btn._ctx) { btn._ctx.close(); btn._ctx = null; }
+      btn.textContent = '🔇';
+      btn.style.color = 'rgba(200,212,184,0.4)';
+      btn.style.borderColor = 'rgba(200,168,75,0.2)';
     }
-
-    // Wind layer
-    const wind = ctx.createBufferSource();
-    wind.buffer = buf; wind.loop = true;
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 450; lp.Q.value = 1.5;
-    const wg = ctx.createGain(); wg.gain.value = 0.45;
-    wind.connect(lp); lp.connect(wg); wg.connect(ctx.destination);
-    wind.start();
-
-    // Forest layer
-    const forest = ctx.createBufferSource();
-    forest.buffer = buf; forest.loop = true; forest.loopStart = 1.2;
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 2000; bp.Q.value = 1.0;
-    const fg = ctx.createGain(); fg.gain.value = 0.12;
-    forest.connect(bp); bp.connect(fg); fg.connect(ctx.destination);
-    forest.start();
-
-    // LFO for wind gusts
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.1;
-    const lg = ctx.createGain(); lg.gain.value = 0.2;
-    lfo.connect(lg); lg.connect(wg.gain);
-    lfo.start();
-
-    btn._wind = wind; btn._forest = forest;
-    btn.textContent = '🔊';
-    btn.style.color = 'rgba(200,168,75,0.9)';
-    btn.style.borderColor = 'rgba(200,168,75,0.5)';
-  } else {
-    if (btn._ctx) { btn._ctx.close(); btn._ctx = null; }
-    btn.textContent = '🔇';
-    btn.style.color = 'rgba(200,212,184,0.4)';
-    btn.style.borderColor = 'rgba(200,168,75,0.2)';
-  }
-});
+  });
+  console.log('Sound btn ready');
+}, 1000);
 
 // Portrait warning
 (function() {
